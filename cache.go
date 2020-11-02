@@ -99,7 +99,7 @@ func New(ctx context.Context, logger *zap.Logger, bucketName, address, accessKey
 
 // PROTOExists checks if PROTO file exists in minio
 func (cache *Cache) PROTOExists(path string, opts minio.StatObjectOptions) (*minio.ObjectInfo, error) {
-	path = pathFix(path, jsonContentType)
+	path = pathFix(path, protobufContentType)
 	return cache.DataExists(path, opts)
 }
 
@@ -121,7 +121,7 @@ func (cache *Cache) CSVExists(path string, opts minio.StatObjectOptions) (*minio
 
 // GetPROTO reads a PROTO file from minio
 func (cache *Cache) GetPROTO(path string, data proto.Message, unmarshalOpts *proto.UnmarshalOptions, opts minio.GetObjectOptions) error {
-	path = pathFix(path, jsonContentType)
+	path = pathFix(path, protobufContentType)
 	cache.logger.Info(fmt.Sprintf("Reading PROTO file, path=%v", path))
 	payload, err := cache.ReadData(path, opts)
 	if nil != err {
