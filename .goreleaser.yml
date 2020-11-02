@@ -6,8 +6,8 @@ before:
     - go mod download
     # you may remove this if you don't need go generate
     - go generate ./...
-builds: []
-archives: []
+build:
+  skip: true
 checksum:
   name_template: 'checksums.txt'
 snapshot:
