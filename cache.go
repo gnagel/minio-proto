@@ -1,4 +1,4 @@
-package minio_proto
+package minioproto
 
 import (
 	"context"
@@ -12,14 +12,18 @@ import (
 	"strings"
 )
 
+// Cache is a basic wrapper around minio.Client with support for storing Protobuf, JSON or CSV files.
 type Cache struct {
+	ctx        context.Context
 	client     *minio.Client
 	bucketName string
 	logger     *zap.Logger
 }
 
-func NewFromUrl(ctx context.Context, logger *zap.Logger, connectionUrl string) (*Cache, error) {
-	config, err := url.Parse(connectionUrl)
+// NewFromURL creates a new instance using a connection url:
+// > http(s)://<user>:<password>@<host>/<bucket>?token=<token>
+func NewFromURL(ctx context.Context, logger *zap.Logger, connectionURL string) (*Cache, error) {
+	config, err := url.Parse(connectionURL)
 	if nil != err {
 		err := errors.New("Failed to parse connection url")
 		logger.Error(err.Error())
@@ -39,15 +43,9 @@ func NewFromUrl(ctx context.Context, logger *zap.Logger, connectionUrl string) (
 	return New(ctx, logger, bucketName, address, accessKey, accessSecret, token, useSSL)
 }
 
+// New creates a Cache instance using the given configuration
 func New(ctx context.Context, logger *zap.Logger, bucketName, address, accessKey, accessSecret, token string, useSSL bool) (*Cache, error) {
 	logger.Info(fmt.Sprintf("Connecting to minio server address=%v with bucket=%v", address, bucketName))
-
-	// Validate the arguments
-	if len(address) == 0 || len(accessKey) == 0 || len(accessSecret) == 0 {
-		err := errors.New("Invalid configuration for client")
-		logger.Error(err.Error())
-		return nil, err
-	}
 
 	// Configure the client connection
 	creds := credentials.NewStaticV4(accessKey, accessSecret, token)
@@ -81,7 +79,10 @@ func New(ctx context.Context, logger *zap.Logger, bucketName, address, accessKey
 	}
 
 	output := &Cache{
-		client: client,
+		ctx:        ctx,
+		client:     client,
+		logger:     logger,
+		bucketName: bucketName,
 	}
 	return output, nil
 }
