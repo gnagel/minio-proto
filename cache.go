@@ -321,7 +321,8 @@ func init() {
 }
 
 func pathFix(path, contentType string) string {
-	ext := filepath.Ext(path)
+	ext := filepath.Ext(path)[1:]
+
 	expected, ok := defaultExtensions[contentType]
 	if !ok || ext == expected {
 		return path
